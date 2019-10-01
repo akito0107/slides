@@ -2,28 +2,22 @@
 
 import { Img } from "@fusuma/client";
 
-## TypeScript で API を提供する
+## TypeScriptでLibraryと型を提供する
 
 ---
 
-## 良い API とはなにか
+## TypeScriptでLibraryを書くメリットはなにか
 
-- プログラマがその API についてよく知らなくても<strong>(無知)</strong>目的を達成できること
-- <strong>今回はこの定義の観点から考えてみる</strong>
+- Libraryを書く人
+    - 型に守られるため堅牢性/メンテナンス性/etcが上がる
+- Libraryを使う人
+    - (型が正しく提供されていれば)<strong>APIの仕様把握のコストが減る</strong>
 
-```
-ソフトウェアエンジニアリングの無知の核心は、プログラマが多くを知ることなく、それでも優れた結果を達成させることです。~(中略)~目標は、開発者がすべてを知らなくてもよいコーディング方法を見つけることです。すなわち、開発者が必要な知識を選択することです。私は、それを選択的無知（selective cluelessness）と呼びます。
-
-Jaroslav Tulach. API デザインの極意 Java/NetBeans アーキテクト探究ノート (Kindle Locations 869-873). . Kindle Edition.
-```
-
-<Img className="hoge" src="../images/api_design.png" />
-
----
+--- 
 
 import {Card, Code} from "@fusuma/client";
 
-## jsとtsの無知レベル
+## example
 
 - 足し算ライブラリ
 
@@ -54,7 +48,9 @@ import {Card, Code} from "@fusuma/client";
 
 ---
 
-## jsとtsの無知レベル
+## example
+
+- API仕様をcompilerが示してくれる
 
 <Card
     left={
@@ -86,39 +82,30 @@ const a = sum(123, 456);
 
 --- 
 
-## tsのAPIと無知レベル
+## 良いAPIについて
+
+- プログラマがその API についてよく知らなくても<strong>(無知)</strong>目的を達成できること
+- <strong>今回はこの定義の観点から考えてみる</strong>
+
+```
+ソフトウェアエンジニアリングの無知の核心は、プログラマが多くを知ることなく、それでも優れた結果を達成させることです。
+~(中略)~目標は、開発者がすべてを知らなくてもよいコーディング方法を見つけることです。
+すなわち、開発者が必要な知識を選択することです。私は、それを選択的無知（selective cluelessness）と呼びます。
+
+Jaroslav Tulach. API デザインの極意 Java/NetBeans アーキテクト探究ノート (Kindle Locations 869-873).
+```
+
+<Img src="../images/api_design.png" />
+
+---
+
+## (このコンテキストにおける)型の役割
 
 - TypeScriptで提供されたAPIは知識を型が表してくれる。（引数・返り値など）
-- そのため、APIの知識がなくても、目的を達成しやすい。
 - (ただし、TypeScript自体の知識は必要)
 - (要するに型ってdocumentationの役割果たしてくれるよね、ということの言い換え)
-- <strong>どれだけAPIの知識を型の力を使って表現できるかの勝負</strong>
+- <strong>どれだけAPIの知識を型を使って表現できるかの勝負</strong>
 
 --- 
 
-## pipe(2)で考えてみる
-
-- 関数を2つ受け取り、関数を返す関数
-
-```js
-function pipe(f1, f2) {
-    return function piped(arg) {
-        const result1 = f1(arg);
-        return f2(result1);
-    }
-}
-```
-
-```js
-const piped = pipe(
-    (a) => (`${a}`),
-    (b) => ({str: b}),
-);
-
-// { str: '2' }
-console.log(piped(2)); 
-```
-
---- 
-
-## (参考)tree-shakingとmethod chain
+## もうちょっと具体的な話
