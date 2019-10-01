@@ -4,6 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "fusuma": "^1.15.0"
+    "@fusuma/client": "^1.15.0",
+    "fusuma": "^1.15.0",
+    "react": "^16.10.1",
+    "styled-components": "^4.4.0"
   }
 }

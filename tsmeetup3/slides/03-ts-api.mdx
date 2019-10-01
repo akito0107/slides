@@ -1,0 +1,129 @@
+<!-- sectionTitle: TypeScriptでAPIを提供する -->
+
+import { Img } from "@fusuma/client";
+
+## TypeScript で API を提供する
+
+---
+
+## 良い API とはなにか
+
+- プログラマがその API についてよく知らなくても<strong>(無知)</strong>目的を達成できること
+- <strong>今回はこの定義の観点から考えてみる</strong>
+
+```
+ソフトウェアエンジニアリングの無知の核心は、プログラマが多くを知ることなく、それでも優れた結果を達成させることです。~(中略)~目標は、開発者がすべてを知らなくてもよいコーディング方法を見つけることです。すなわち、開発者が必要な知識を選択することです。私は、それを選択的無知（selective cluelessness）と呼びます。
+
+Jaroslav Tulach. API デザインの極意 Java/NetBeans アーキテクト探究ノート (Kindle Locations 869-873). . Kindle Edition.
+```
+
+<Img className="hoge" src="../images/api_design.png" />
+
+---
+
+import {Card, Code} from "@fusuma/client";
+
+## jsとtsの無知レベル
+
+- 足し算ライブラリ
+
+<Card
+    left={
+        <>
+            <h3>js</h3>
+            <br />
+            <Code language="js">
+{`function sum(a, b) {
+    return a + b;
+}`}
+            </Code>
+        </>
+        }
+    right={
+        <>
+            <h3>ts</h3>
+            <br />
+            <Code language="ts">
+{`function sum(a: number, b: number) {
+    return a + b;
+}`}
+            </Code>
+        </>
+        }
+/>
+
+---
+
+## jsとtsの無知レベル
+
+<Card
+    left={
+        <>
+            <h3>js</h3>
+            <br />
+            <Code language="js">{
+`// 123str
+sum(123, "str");
+// returnされた値はどうなっているのか？
+const a = sum(123, 456);
+            `}</Code>
+        </>
+        }
+    right={
+        <>
+            <h3>ts</h3>
+            <br />
+            <Code language="ts">
+{`// compile error
+sum(123, "str");
+// aもnumberとして推論されている
+const a = sum(123, 456);
+`}
+            </Code>
+        </>
+        }
+/>
+
+--- 
+
+## tsのAPIと無知レベル
+
+- TypeScriptで提供されたAPIは知識を型が表してくれる。（引数・返り値など）
+- そのため、APIの知識がなくても、目的を達成しやすい。
+- (ただし、TypeScript自体の知識は必要)
+- (要するに型ってdocumentationの役割果たしてくれるよね、ということの言い換え)
+- <strong>どれだけAPIの知識を型の力を使って表現できるかの勝負</strong>
+
+--- 
+
+## pipe(2)で考えてみる
+
+- 関数を2つ受け取り、関数を返す関数
+
+```js
+function pipe(f1, f2) {
+    return (arg) => {
+        const result1 = f1(arg);
+        return f2(result1);
+    }
+}
+```
+
+```js
+const piped = pipe(
+    (a) => (`${a}`),
+    (b) => ({str: b}),
+);
+
+// { str: '2' }
+console.log(piped(2)); 
+```
+
+--- 
+
+## (参考)method chainとpipe
+
+
+---
+
+## tree-shaking

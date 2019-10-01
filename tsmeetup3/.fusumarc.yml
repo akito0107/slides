@@ -13,8 +13,10 @@ slide:
   code:
     languages:
       - javascript
-    plugins: []
+      - typescript
+    plugins: ["line-numbers"]
     theme: default
+    css: true
   chart: false
   math: false
 extends:

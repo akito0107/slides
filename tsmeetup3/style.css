@@ -12,7 +12,8 @@
 
 h2 {
   color: var(--main-color);
-  margin-bottom: 48px;
+  margin-top: 24px;
+  margin-bottom: 24px;
   font-size: 48px;
 }
 
@@ -28,6 +29,14 @@ body {
 .title {
   background: var(--black-color);
   color: var(--main-color);
+}
+
+.overlay {
+  background-color: #0000
+}
+
+figure img {
+  height: 240px;
 }
 
 li {
