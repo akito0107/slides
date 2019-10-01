@@ -102,7 +102,7 @@ const a = sum(123, 456);
 
 ```js
 function pipe(f1, f2) {
-    return (arg) => {
+    return function piped(arg) {
         const result1 = f1(arg);
         return f2(result1);
     }
@@ -121,9 +121,4 @@ console.log(piped(2));
 
 --- 
 
-## (参考)method chainとpipe
-
-
----
-
-## tree-shaking
+## (参考)tree-shakingとmethod chain

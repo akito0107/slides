@@ -1,3 +1,25 @@
 <!-- sectionTitle: pipeの型定義 -->
 
-## pipe(2)に必要なAPIの知識
+## pipeの型定義
+
+--- 
+
+## pipe(2)を使うために必要な知識
+
+- ①: 返り値の関数 `piped` に関する知識
+- ②: 引数 `f1` `f2` に関する知識
+
+```js
+function pipe(f1, f2 /* ② */) {
+    return /* ① */ function piped(arg) {
+        const result1 = f1(arg);
+        return f2(result1);
+    }
+}
+```
+
+---
+
+## ①: 返り値の関数pipedに関する知識
+
+- `piped` の型は
