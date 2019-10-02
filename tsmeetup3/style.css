@@ -39,10 +39,6 @@ body {
   background-color: #0000
 }
 
-figure img {
-  height: 240px;
-}
-
 li {
   font-family: Roboto, sans-serif, "Noto Sans Japanese", YuGothic, "Yu Gothic";
   margin-bottom: 24px;
@@ -50,6 +46,10 @@ li {
 
 li strong {
   color: var(--red-color);
+}
+
+.literal img {
+  height: 200px;
 }
 
 .section-title {
