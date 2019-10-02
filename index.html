@@ -1,0 +1,180 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-type" content="text/html; charset=utf-8"><meta name="theme-color" content="#3498db"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TypeScript Meetup#3</title><meta property="og:title" content="TypeScript Meetup#3"><meta property="og:type" content="article"><link href="vendor.6.5ae31b3661ec750e1389.css" rel="stylesheet"><link href="main.3.38def050c766b3ec00d7.css" rel="stylesheet"></head><body><div id="root"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" class="btn-sidebar" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg><article id="webslides"><section class="aligncenter"><h1>TypeScript製ライブラリと開発体験</h1></section><section class="aligncenter"><div class="toc size-70 aligncenter"><ol><li><a href="#slide=3" title="はじめに"><span class="chapter">はじめに</span><span class="toc-page">3</span></a></li><li><a href="#slide=9" title="catacliの紹介"><span class="chapter">catacliの紹介</span><span class="toc-page">9</span></a></li><li><a href="#slide=28" title="可変長引数の型推論"><span class="chapter">可変長引数の型推論</span><span class="toc-page">28</span></a></li><li><a href="#slide=37" title="終わりに"><span class="chapter">終わりに</span><span class="toc-page">37</span></a></li></ol></div></section><section class="aligncenter section-title"><h2>はじめに</h2></section><section class="aligncenter"><h2>自己紹介</h2><ul><li>伊藤　瑛（いとう　あきと）</li><li>@Akito0107 Twitter / Github</li><li>TypeScript / Go をよく書いています</li><li>メインはバックエンド</li></ul></section><section class="aligncenter"><h2>TypeScript とわたし</h2><ul><li>一番最初に触り始めたのは使い始めたのは 2016 年ごろ<ul><li>Node.js 製のサーバサイドアプリケーションの運用をしていた</li><li>Runtime Error に苦しめられる日々</li><li>当時の TypeScript は Third Party 製のライブラリが充実しておらず、余計辛かったので使うのを諦める</li></ul></li><li>Flow に行ったりしたが、2018 年の春頃から本格的に TypeScript を触り始める</li><li>TypeScript でツール・ライブラリを作るのが趣味</li><li>ライブラリ屋？</li></ul></section><section class="aligncenter"><h2>今日伝えたいこと</h2><ul><li>TypeScriptの型推論を活用すると、どういったAPIが実現できるのか</li><li>実例ベースで型のトリックとともにいくつか紹介します</li><li>なにか 1 つでもヒントになれば幸いです！</li></ul></section><section class="aligncenter"><h2>まえおき</h2><ul><li>型パズルがいくつか出てくる</li><li>こういうこともできるよ、という話</li><li><strong>すべての TS のコードでこういったことをしよう、という話ではない</strong></li></ul></section><section class="aligncenter"><h2>TypeScriptでLibraryを書くメリットはなにか</h2><ul><li>Libraryを書く人<ul><li>型に守られるため堅牢性/メンテナンス性/etcが上がる</li></ul></li><li>Libraryを使う人<ul><li>(型が正しく提供されていれば)APIの仕様把握のコストが減る</li><li>IDEの補完による高いDX</li></ul></li></ul><h3>TSでしかできないようなDXを実現してみたい</h3></section><section class="aligncenter section-title"><h2>command line parser catacliの紹介</h2></section><section class="aligncenter"><h2>catacli</h2><ul><li><a href="https://github.com/akito0107/catacli">github</a></li><li>TypeScript向けに書いたCommand Line Parser(Node.jsでCLI書くときに使うやつ)<ul><li>commander.js, minimist, yargsなどと同じジャンル</li></ul></li><li>型推論がかなり強く効く</li><li><a href="https://speakerdeck.com/akito0107/typescriptfalsekomandorainpasa">詳しくはこちら</a></li><li>(名前変えました)</li></ul></section><section class="aligncenter"><h2>motivation</h2><ul><li>commander.js のAPI(Githubより)</li></ul><pre><code class="language-js">const program = require(&#x27;commander&#x27;);
+
+program
+  .option(&#x27;-d, --debug&#x27;, &#x27;output extra debugging&#x27;)
+  .option(&#x27;-s, --small&#x27;, &#x27;small pizza size&#x27;)
+  .option(&#x27;-p, --pizza-type &lt;type&gt;&#x27;, &#x27;flavour of pizza&#x27;);
+
+program.parse(process.argv);
+
+if (program.debug) console.log(program.opts());
+if (program.small) console.log(&#x27;- small pizza size&#x27;);
+if (program.pizzaType) console.log(`- ${program.pizzaType}`);
+</code></pre><ul><li>文字列で <code>flag</code> を定義していくスタイル</li><li>flagが増えたときや、subcommandとか増えだすと辛い</li></ul><h3>flagを全部型推論させたい！！！</h3></section><section class="aligncenter"><h2>Demo</h2><p><a href="https://www.typescriptlang.org/play/#code/JYWwDg9gTgLgBAbxAQwNYFMDKMrAHYDmAYgDbIEA0cU6AJgK4DG6p5AvnAGZQQhwBEjZDGSMSwfgG4AsACg5AegVcyBOGGEx0UPHLmMIeAM7xkUAgDc4AXjgBtfgFpHWk-yr9XMdwOdeATD6e6CaBALp6sgbG8JwAjDZwKBjYuISsBAAUwW4AlPqGJlz+iclYOPjEqtkB-PnyUYXwNEYJtvGZDn4h3h4AFhAE6Pxh9QUx1CEltjQMzBmZ8VSc-rmZZpa5MrJAA">playground</a></p></section><section class="aligncenter"><h2>型のトリック</h2><ul><li>①: String Literalをkeyにしたobjectを返す型</li><li>②: 可変長引数の型推論</li></ul></section><section class="aligncenter"><h2>①: String Literalをkeyにしたobjectを返す型</h2><ul><li>ユーザが引数に与えた文字列のpropを持ったobjectの型として推論させる</li></ul><pre><code class="language-ts">// --test &lt;number&gt; のflagを定義したい
+const f = makeNumberFlag(&quot;test&quot;);
+// resは { test: number; }として推論される
+const res = f([&quot;test&quot;, &quot;123&quot;])
+</code></pre></section><section class="aligncenter"><ul><li>Flag(Parser)の型定義(抜粋)<ul><li><code>type Flag</code> はコマンドライン引数( <code>process.argv</code> )を受け取り、parseした結果を返す関数(の型定義)</li></ul></li></ul><pre><code class="language-ts">type Flag&lt;T, N extends string&gt; = (args: string[]) =&gt; ParseResult&lt;T, N&gt;;
+type ParseResult&lt;T, N extends string&gt; = {
+  [key in N]: {
+    value?: T;
+  };
+};
+</code></pre><ul><li>実際のFlagParserはこの型を利用して実装されている</li></ul><pre><code class="language-ts">export type NumberFlag&lt;N extends string&gt; = Flag&lt;number, N&gt;;
+
+export function makeNumberFlag&lt;N extends string&gt;(name: N): NumberFlag&lt;N&gt; {
+  return (args: string[]) =&gt; {
+      // ~ parserのlogicが入る ~
+    return {
+      [name]: { value: parseInt(v, 10) }
+    };
+  };
+}
+</code></pre><ul><li>ポイントは<strong>&lt;N extends string<!-- -->&gt;</strong></li></ul></section><section class="aligncenter"><h2>TypeScriptのextends</h2><ul><li>特に型パラメータで使われた場合、継承というより、型の制約条件を表すイメージ(<a href="https://www.typescriptlang.org/docs/handbook/generics.html">参考</a>)</li><li><code>N extends string</code> の <code>N</code> は <code>string</code> を継承した型というよりも、 <code>string</code> の型に包含される型という認識のほうが近い</li><li><code>string literal type</code> (javascriptのstringの値そのものの型)はstringに包含される</li></ul><pre><code class="language-ts">type A&lt;N extends string&gt; = {};
+
+type B = A&lt;&quot;test&quot;&gt;; // OK
+type C = A&lt;&quot;test1&quot; | &quot;test2&quot;&gt;; // OK
+type D = A&lt;string&gt;; // OK
+type E = A&lt;123&gt;; // NG
+</code></pre><div class="literal"><figure><div class="overlay"></div><img src="2e30f8034ed0faf4a0e95f4341afc0cc.webp"></figure></div></section><section class="aligncenter"><h2>mapped type</h2><ul><li><a href="https://www.typescriptlang.org/docs/handbook/advanced-types.html#mapped-types">参考</a></li><li><code>for in</code> に近い動きをする</li></ul><pre><code class="language-ts">type M&lt;N extends string&gt; = {
+    [K in N]: string;
+}
+
+type B = M&lt;&quot;test&quot;&gt;; // { test: string; }として推論される
+type C = M&lt;&quot;test1&quot; | &quot;test2&quot;&gt;; // { test1: string; test2: string; }として推論される
+type D = M&lt;string&gt;; // { [x: string]: string; }として推論される
+</code></pre></section><section class="aligncenter"><h2>これらを応用してみる</h2><ul><li>TypeScriptの関数の型パラメータは引数の型をcaptureしてくれる<a href="https://www.typescriptlang.org/docs/handbook/generics.html#hello-world-of-generics">参考</a></li><li><code>type argument inference</code></li></ul><pre><code class="language-ts">function makeNamedProps&lt;N extends string&gt;(propName: N): {[key in N]: string; } {
+    // 割愛
+}
+
+const res = makeNamedProps(&quot;test&quot;) // {test: string;}として推論される
+
+const res2 = makeNamedProps&lt;string&gt;(&quot;test&quot;) // {[x: string]: string;}として推論される
+</code></pre></section><section class="aligncenter"><h2>②: 可変長引数の型定義</h2><ul><li>任意のflag parserを組み合わせて、複数のflagをparseできるようにしたい</li><li><code>reduceFlag</code> の型定義について</li></ul><pre><code class="language-ts">const argv = [&quot;--test&quot;, &quot;test&quot;, &quot;--test2&quot;, &quot;test2&quot;]
+
+const f1 = makeStringFlag(&quot;test&quot;) // (arg: string[]) =&gt; ({test: string;});
+const f2 = makeStringFlag(&quot;test2&quot;) // (arg: string[]) =&gt; ({test2: string;}):
+
+const reduced = reduceFlag(f1, f2) // (args: string[]) =&gt; ({test: string; test2: string;});
+
+const res = reduced(argv); // {test: string; test2: string; }と推論させたい
+</code></pre></section><section class="aligncenter"><h2>引数が2個の場合</h2><ul><li>任意の関数を2つうけとり、返り値を合成して返す関数</li><li>それぞれの関数の返り値を型パラメータで受け取り, <code>intersection type</code> を用いる</li></ul><pre><code class="language-ts">function mergeFunction&lt;R1, R2&gt;(f1: (x: any) =&gt; R1, f2: (x: any) =&gt; R2): (x: any)  =&gt; R1 &amp; R2 {
+    // 割愛
+}
+
+const f1 = () =&gt; ({test: &quot;test&quot;});
+const f2 = () =&gt; ({test2: &quot;test2&quot;});
+
+const fm = mergeFunction(f1, f2); // (x: any) =&gt; ({test: &quot;test&quot;} &amp; {test2: &quot;test2&quot;}) として推論
+</code></pre></section><section class="aligncenter"><h2>Flagで書いてみる</h2><ul><li>T1 / T2をそれぞれの引数のFlag(Parser)の型パラメータに渡す</li></ul><pre><code class="language-ts">function merge2&lt;T1, T1Name extends string, T2, T2Name extends string&gt;(
+  t1: Flag&lt;T1, T1Name&gt;,
+  t2: Flag&lt;T2, T2Name&gt;
+): Flag&lt;{ [key in T1Name]: T1 } &amp; { [key in T2Name]: T2 }, T1Name | T2Name&gt; {
+    // 割愛
+}
+
+const f1 = makeStringFlag(&quot;test&quot;)
+const f2 = makeStringFlag(&quot;test2&quot;)
+const merged = merge2(f1, f2);
+
+const res = merged(argv) // {test: string; test2: string;} として推論される
+</code></pre></section><section class="aligncenter"><h2>引数が3個の場合　</h2><ul><li>愚直にやるとこう</li></ul><pre><code class="language-ts">function merge3&lt;T1, T1Name extends string, T2, T2Name extends string, T3, T3Name extends string&gt;(
+  t1: Flag&lt;T1, T1Name&gt;,
+  t2: Flag&lt;T2, T2Name&gt;,
+  t3: Flag&lt;T3, T3Name&gt;
+): Flag&lt;{ [key in T1Name]: T1 } &amp; { [key in T2Name]: T2 } &amp; { [key in T3Name]: T3 }, T1Name | T2Name | T3Name&gt; {
+    // 割愛
+}
+
+</code></pre></section><section class="aligncenter"><h2>引数がN個の場合</h2><ul><li>想定される引数の数だけ型定義を書いておく（あるいは生成する）のはひとつのベストプラクティス</li><li>本当に任意の数の引数を取るような関数の型定義を正しく書くのは <strong>すごく大変</strong> (あとで話します)</li></ul></section><section class="aligncenter"><h2>(参考)yargs</h2><ul><li>api styleの違い</li><li>method chain likeなapi</li></ul><pre><code class="language-ts">import * as yargs from &#x27;yargs&#x27;;
+
+yargs.command(&#x27;serve&#x27;, &quot;Start the server.&quot;, (argv) =&gt; {
+    /* ここの関数の返り値がそのままhandlerで推論されるようになる */
+    return argv.option(&#x27;port&#x27;, {
+        describe: &quot;Port to bind on&quot;,
+        default: &quot;5000&quot;,
+    }).option(&#x27;verbose&#x27;, {
+        alias: &#x27;v&#x27;,
+        default: false,
+    });
+}, (args) =&gt; {
+    /* argsの */
+    if (args.verbose) {
+        console.info(&quot;Starting the server...&quot;);
+    }
+    (args.port);
+});
+</code></pre></section><section class="aligncenter"><h2>method chainの型定義</h2><ul><li>関数型チックにやろうとするよりはかなり型は書きやすい</li><li>N個の引数のときに苦しまなくても良い</li><li>(あまり使い勝手も変わらない)</li></ul><pre><code class="language-ts">class FlagParser&lt;T extends object&gt; {
+    opts: T;
+
+    constructor(init: T) {
+        this.opts = init;
+    }
+
+    addStringFlag&lt;N extends string&gt;(name: N): FlagParser&lt;T &amp; {[key in N]: string;}&gt; {
+        // 割愛
+        return &lt;any&gt;this
+    }
+
+}
+
+const parser = new FlagParser({});
+
+// {test: string; test2: string}として推論される
+const o = parser.addStringFlag(&quot;test&quot;).addStringFlag(&quot;test2&quot;).opts;
+</code></pre></section><section class="aligncenter"><h2>tree shakingとmethod chain</h2><ul><li><strong>(今回はNode.jsのCLIライブラリの話なので関係ない)</strong></li><li>method chain styleのAPIはtree shakingが効きづらい傾向にある<ul><li>それぞれのmethodを独立してexportするのが難しい</li><li>side effectsの問題</li></ul></li><li>副作用のない関数を組み合わせて機能を作っていくほうがtree shaking的には有利</li></ul><pre><code class="language-ts">export function stringFlag(){}
+export function numberFlag(){} // numberFlagは使用されていなければbundle時に消える
+</code></pre></section><section class="aligncenter"><h2>可変長引数は諦めきれない</h2><ul><li>こうなっちゃう</li></ul><pre><code class="language-ts">f(d, f(c, f(a, b)))
+</code></pre><ul><li>こう書きたい</li></ul><pre><code class="language-ts">f(d, c, b, a);
+</code></pre></section><section class="aligncenter section-title"><h2>可変長引数の型推論</h2></section><section class="aligncenter"><h2>pipeNで考えてみる</h2><ul><li>任意の数の関数を受け取り、関数を返す関数</li></ul><pre><code class="language-ts">// (a: number) =&gt; stringに推論されてほしい
+const piped = pipeN(
+    (a: number) =&gt; (`${a}`),
+    (b: string) =&gt; ({key: b}),
+    (c: {key: string}) =&gt; (c.key),
+);
+</code></pre><ul><li>( <code>|&gt;</code> こんな演算子になるかもしれない)</li></ul></section><section class="aligncenter"><h2>可変長引数のハンドリング第一歩</h2><ul><li>可変長引数は<strong>tuple</strong>として扱える</li><li>TypeScriptには <code>tuple</code> という型がある <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html#tuple">参考</a></li><li>Arrayとの違いは、長さが固定であること、それぞれの要素の型が固定されていること</li></ul><pre><code class="language-ts">let x: [string, number];
+
+x = [&quot;hello&quot;, 10]; // OK
+x = [10, &quot;hello&quot;]; // Error
+</code></pre><pre><code class="language-ts">function&lt;A extends Array&lt;any&gt;&gt; tupleTest(...a: A): A {...}
+
+tupleTest(1, 2, 3, 4, 5) // [number, number, number, number, number]として推論される
+</code></pre></section><section class="aligncenter"><h2>Tuple操作のイディオムを覚えよう</h2><ul><li>Tuple操作の型のイディオムは探すと結構出てくる</li><li>外部ライブラリを頼るのが良さそう</li><li><a href="https://github.com/pirix-gh/ts-toolbelt">ts-toolbelt</a>にだいたい揃ってる</li></ul><pre><code class="language-ts">// Tupleの先頭の要素をとってくる
+type Head&lt;T extends Array&lt;any&gt;&gt; = ((...args: T) =&gt; any) extends (x: infer Head, ...tail: any) =&gt; any ? Head : never;
+
+type H = Head&lt;[1, 2, 3, string]&gt; // H = 1
+
+// Tupleの先頭以外をとってくる
+type Tail&lt;T extends Array&lt;any&gt;&gt; = ((...args: T) =&gt; any) extends (x: any, ...tail: infer Tail) =&gt; any ? Tail : never;
+
+type T = Tail&lt;[1, 2, 3, string]&gt; // T = [2, 3, string]
+
+// Tupleの一番最後の要素をとってくる
+type Last&lt;T extends any[]&gt; = T[Exclude&lt;keyof T, keyof Tail&lt;T&gt;&gt;];
+
+type L = Last&lt;1, 2, 3, string]&gt; // L = string
+</code></pre></section><section class="aligncenter"><h2>あとはくっつける！</h2><ul><li>(conditional typeを使っています)</li></ul><pre><code class="language-ts">function pipeN&lt;A extends Array&lt;Fn&lt;any, any&gt;&gt;&gt;(...fns: A): 
+  Head&lt;A&gt; extends (a: infer Arg) =&gt; any ? 
+    Last&lt;A&gt; extends (a: any) =&gt; infer R ?  (a: Arg) =&gt; R : never : never {
+    // 実装は割愛
+}
+
+const piped = pipeNT(
+    (a: number) =&gt; (`${a}`),
+    (b: string) =&gt; ({test: b})
+); // (a: number) =&gt; ({test: string}) として推論される
+</code></pre><h3>ここまではできた</h3></section><section class="aligncenter"><h2>最高のpipeNを目指して</h2><ul><li>引数の関数同士に推論を効かせたい</li></ul><pre><code class="language-ts">const piped = pipeNT(
+    (a: number) =&gt; (`${a}`), // 返り値の型はstring
+    (b: string) =&gt; ({test: b}) // 注釈なくても引数はstringとして推論してほしい
+    (c: {test: b}) =&gt; 123 // cも推論してほしい...
+);
+</code></pre><h3>これがまだできていない</h3></section><section class="aligncenter"><h2>ramdaのpipe</h2><ul><li><a href="https://ramdajs.com/">ramda.js</a>の <code>pipe</code> を見てみる</li><li>できてる</li></ul><pre><code class="language-ts">import {pipe} from &#x27;ramda&#x27;
+
+const piped = pipe(
+  (a: number) =&gt; (`${a}`), // 返り値の型はstrig
+  (b) =&gt; {
+    return  {test: b} // bはstringとして推論
+  },
+  (c) =&gt; c.test // cは{test: b}として推論
+);
+</code></pre></section><section class="aligncenter"><h2>なぜなら</h2><figure><div class="overlay"></div><img src="609618a4470ae547e130c9153a987707.webp"></figure></section><section class="aligncenter"><h2>結論</h2><ul><li>ある程度は頑張れるものの、やっぱり引数が想定される分だけ型定義を用意したほうが推論的にもよさそう</li><li>ramda / Rxjsはそういうアプローチ</li></ul></section><section class="aligncenter section-title"><h2>終わりに</h2></section><section class="aligncenter"><h2>まとめ</h2><ul><li>ライブラリを作るときに使ったTypeScriptの型推論のトリックをいくつか紹介しました</li><li>method chainと関数の合成</li><li>可変長引数の取り扱い方</li></ul></section><section class="aligncenter"><h1>ありがとうございました</h1></section></article></div><script type="text/javascript" src="runtime.7f13fbf57307d6a03407.bundle.js"></script><script type="text/javascript" src="vendor.6.5ae31b3661ec750e1389.bundle.js"></script><script type="text/javascript" src="main.3.38def050c766b3ec00d7.bundle.js"></script></body></html>
