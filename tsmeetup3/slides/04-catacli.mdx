@@ -210,7 +210,7 @@ const merged = merge2(f1, f2);
 const res = merged(argv) // {test: string; test2: string;} として推論される
 ```
 
-___
+---
 
 ## 引数が3個の場合　
 
@@ -221,7 +221,7 @@ function merge3<T1, T1Name extends string, T2, T2Name extends string, T3, T3Name
   t1: Flag<T1, T1Name>,
   t2: Flag<T2, T2Name>,
   t3: Flag<T3, T3Name>
-): Flag<{ [key in T1Name]: T1 } & { [key in T2Name]: T2 }, T1Name | T2Name> {
+): Flag<{ [key in T1Name]: T1 } & { [key in T2Name]: T2 } & { [key in T3Name]: T3 }, T1Name | T2Name | T3Name> {
     // 割愛
 }
 

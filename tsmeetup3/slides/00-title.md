@@ -1,1 +1,1 @@
-# TypeScript製ライブラリで変わるTypeScriptの開発体験
+# TypeScript製ライブラリと開発体験
