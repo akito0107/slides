@@ -232,7 +232,7 @@ function merge3<T1, T1Name extends string, T2, T2Name extends string, T3, T3Name
 ## 引数がN個の場合
 
 - 想定される引数の数だけ型定義を書いておく（あるいは生成する）のはひとつのベストプラクティス
-- 本当に任意の数の引数を取るような関数の型定義を書くのは <strong>すごく大変</strong> (あとで話します)
+- 本当に任意の数の引数を取るような関数の型定義を正しく書くのは <strong>すごく大変</strong> (あとで話します)
 
 --- 
 
@@ -299,9 +299,25 @@ const o = parser.addStringFlag("test").addStringFlag("test2").opts;
 - method chain styleのAPIはtree shakingが効きづらい傾向にある
     - それぞれのmethodを独立してexportするのが難しい
     - side effectsの問題
-- 副作用のない関数を組み合わせて機能を作っていくほうが `tree shaking` 的には有利
+- 副作用のない関数を組み合わせて機能を作っていくほうがtree shaking的には有利
 
 ```ts
 export function stringFlag(){}
 export function numberFlag(){} // numberFlagは使用されていなければbundle時に消える
+```
+
+---
+
+## 可変長引数は諦めきれない
+
+- こうなっちゃう
+
+```ts
+f(d, f(c, f(a, b)))
+```
+
+- こう書きたい
+
+```ts
+f(d, c, b, a);
 ```
