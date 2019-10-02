@@ -45,14 +45,27 @@ if (program.pizzaType) console.log(`- ${program.pizzaType}`);
 
 ## Demo
 
-[playground](https://www.typescriptlang.org/play/#code/JYWwDg9gTgLgBAbxAQwNYFMDKMrAHYDmAYgDbIEA0cU6AJgK4DG6p5AvnAGZQQhwBEjZDGSMSwfgG4AsACg5AegVcyBOGGEx0UPHLmMIeAM7xkUAgDc4AXjgBtfgFpHWk-yr9XMdwOdeATD6e6CaBALp6sgbG8JwAjDZwKBjYuISsBAAUwW4AlPqGJlz+iclYOPjEqtkB-PnyUYXwNEYJtvGZDn4h3h4AFhAE6Pxh9QUx1CEltjQMzBmZ8VSc-rmZZpa5MrJAA)
+[playground](https://www.typescriptlang.org/play/#code/JYWwDg9gTgLgBAbwLACg5xAQwNYFMBCEEANrpgHYBixmA5gDSrpZ4ByAriAEa5TV2M0GHLgDKMKMHK1+DJsLwBhCCCzkAJoPRRc69gGNcsrQrESptAIJRanXORgmWuAAoQAzsBjAI5TMWtbEHsYd0EAXzgAMygVOAAifUwYTH1iYHiAblRUAHoAKlQARgAuOHdzaTh0mF5-QCSGPABPQGsGQHUGQH0GCC4AK1x9GHrAFfjATQZAItTAB1NAOwZAaPU4VHzc1H1fCrguIlIKWTgAXlNCEjIqGloACniIMFCi+PpEeXZ3Olwy+I2jijhcAA9McFI8VQ4QAlNkUMtVvAuHt1ptjrIzgBteIAWlRV1C8QAumDIeR3EcAHTECDnLhEzHuIp4iEoFYE+DkTg8PinWHODjcXiIy7XdwAJjuDyE6lwUUw7GIMDKRXuuVycCaEHYcCS5DgYEw7nccDFEql8AAbv52LgTE8Xm9mdyoN8-gDcECUKDwQy1hVJNIdvtnOIvTJThcqQBmYXIIT+YDat6YYUKpUqtVfdxgfrAKJNOBR7VwM7uAAWEBgqILFHU0VOIMez1orwSnos9v+YEBwNpeUKKAFZUA33KAeEMptNJvVAOvKgEUGQBryoAohkAgAwzeqACBVAAhGI0A0QyTWaACuNAGtRTEW+LWUVOut9vDriI+WxOAjgNtZxnKlUDdA79KhcGLBZ57N9In9Fi8lSAAs8Rvu68DHnQgocueRhBlBtBhJ+MDfmyr7goe8ArKo5YciIyi4RoZwRugfjBG8vwtoCJhiu4+iSNcPjkG8SQpGkwBwMAuowE0ab0YxJYxMA9jqMQWY4WoYp2jAmx3PIRq8J4vhvAADES6m3Batb1vEniOnASIAPIuAAKgAkkZrCiNi2Y2Fp8iIWUiFhPIZYaKQUBlGcAD69xUiCewAHwiug6AFHAACaRkAKoAEpwIoRkALLJZYrAACJwAAMkZADi5mKHA5miHAAASACicUVXAB5COg7rEqS5zxIhn78qUCT+fylIdUSJrEGaYJwAmEDYNmGhceQUS8DoFa5lexxwLxabyA1qxNWSFxtVSPZde1oS9aEAr9aauDDaN414VIM1QHN2a6vevDLXxuBrWqG2kCSW2teyoZvN1h2hqdg3nZkI2KmNE0Vjds26A9T4Bi9q31RDB3uESmA2MB4MJlUOFgMApDfHd0DyOE7aYe+RHqMiaIYh1wr07tTNFAKYb3Gicac4W0AwDiYJAA)
 
 --- 
 
 ## 型のトリック
 
 - ①: String Literalをkeyにしたobjectを返す型
+
+```ts
+const booleanFlag = makeBooleanFlag("opts1", {
+  usage: "boolean example"
+});
+
+const b = booleanFlag(["--opts"]);
+```
+
 - ②: 可変長引数の型推論
+
+```ts
+const flags = mergeFlag(booleanFlag, numberFlag, stringFlag);
+```
 
 --- 
 
@@ -158,7 +171,7 @@ const res2 = makeNamedProps<string>("test") // {[x: string]: string;}として�
 ## ②: 可変長引数の型定義
 
 - 任意のflag parserを組み合わせて、複数のflagをparseできるようにしたい
-- `reduceFlag` の型定義について
+- `mergeFlag` の型定義について
 
 ```ts
 const argv = ["--test", "test", "--test2", "test2"]
@@ -166,9 +179,9 @@ const argv = ["--test", "test", "--test2", "test2"]
 const f1 = makeStringFlag("test") // (arg: string[]) => ({test: string;});
 const f2 = makeStringFlag("test2") // (arg: string[]) => ({test2: string;}):
 
-const reduced = reduceFlag(f1, f2) // (args: string[]) => ({test: string; test2: string;});
+const merged = mergeFlag(f1, f2) // (args: string[]) => ({test: string; test2: string;});
 
-const res = reduced(argv); // {test: string; test2: string; }と推論させたい
+const res = merged(argv); // {test: string; test2: string; }と推論させたい
 ```
 
 ---
