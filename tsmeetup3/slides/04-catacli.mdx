@@ -109,7 +109,7 @@ export function makeNumberFlag<N extends string>(name: N): NumberFlag<N> {
 }
 ```
 
-- ポイントは<strong><N extends string\></strong>
+- ポイントは<strong><N extends string\></strong>と<strong>[key in N]</strong>と<strong>型のcapture</strong>
 
 ---
 
@@ -134,7 +134,7 @@ type E = A<123>; // NG
 
 ---
 
-## mapped type
+## mapped types
 
 - [参考](https://www.typescriptlang.org/docs/handbook/advanced-types.html#mapped-types)
 - `for in` に近い動きをする
@@ -151,19 +151,42 @@ type D = M<string>; // { [x: string]: string; }として推論される
 
 ---
 
-## これらを応用してみる
+## 型のcapture
 
 - TypeScriptの関数の型パラメータは引数の型をcaptureしてくれる[参考](https://www.typescriptlang.org/docs/handbook/generics.html#hello-world-of-generics)
 - `type argument inference`
 
 ```ts
-function makeNamedProps<N extends string>(propName: N): {[key in N]: string; } {
+function capture<N>(a: N): N {
     // 割愛
 }
 
-const res = makeNamedProps("test") // {test: string;}として推論される
+const t = capture("test") // t = "test" (literal type) として推論される
 
-const res2 = makeNamedProps<string>("test") // {[x: string]: string;}として推論される
+const t2 = capture<string>("test") // t = string
+```
+
+---
+
+## 全部組み合わせるとこうなる
+
+- 引数をstring literal typeとして推論させることにより、引数で与えた文字列のpropを持ったobjectの型を定義することができる
+
+```ts
+type Flag<T, N extends string> = (args: string[]) => ParseResult<T, N>;
+type ParseResult<T, N extends string> = {
+  [key in N]: {
+    value?: T;
+  };
+};
+
+export type NumberFlag<N extends string> = Flag<number, N>;
+
+export function makeNumberFlag<N extends string>(name: N): NumberFlag<N> {
+  return (args: string[]) => {
+      // 割愛
+  };
+}
 ```
 
 ---

@@ -10,6 +10,7 @@
 - @Akito0107 Twitter / Github
 - TypeScript / Go をよく書いています
 - メインはバックエンド
+- blogやってます=> https://blog.akito0107.dev/
 
 ---
 
